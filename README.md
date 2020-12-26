@@ -3,7 +3,7 @@ Welcome to the Validation in DDD course
 
 This is the source code for my Pluralsight course about Validation in DDD.
 
-The course is currently under development. To get notified when it's released, subscribe to my email list: https://enterprisecraftsmanship.com/subscribe[https://enterprisecraftsmanship.com/subscribe]
+The course is currently under development. To get notified when it's released, subscribe to my email list: https://enterprisecraftsmanship.com/subscribe
 
 How to Get Started
 --------------
