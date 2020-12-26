@@ -9,7 +9,7 @@ namespace Api
         public string Address { get; set; }
     }
 
-    public class RegisterResonse
+    public class RegisterResponse
     {
         public long Id { get; set; }
     }

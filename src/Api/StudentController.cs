@@ -23,7 +23,7 @@ namespace Api
             var student = new Student(request.Email, request.Name, request.Address);
             _studentRepository.Save(student);
 
-            var resonse = new RegisterResonse
+            var response = new RegisterResponse
             {
                 Id = student.Id
             };
