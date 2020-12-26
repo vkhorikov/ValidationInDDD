@@ -27,7 +27,7 @@ namespace Api
             {
                 Id = student.Id
             };
-            return Ok(resonse);
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
