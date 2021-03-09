@@ -37,7 +37,12 @@ namespace Api
             // Error codes
             // Return a list of errors, not just the first one
 
-            var student = new Student(request.Email, request.Name, request.Address);
+            var address = new Address(
+                request.Address.Street,
+                request.Address.City,
+                request.Address.State,
+                request.Address.ZipCode);
+            var student = new Student(request.Email, request.Name, address);
             _studentRepository.Save(student);
 
             var response = new RegisterResponse
@@ -50,11 +55,23 @@ namespace Api
         [HttpPut("{id}")]
         public IActionResult EditPersonalInfo(long id, [FromBody] EditPersonalInfoRequest request)
         {
-            // Same validations here
             // Check that the student exists
             Student student = _studentRepository.GetById(id);
 
-            student.EditPersonalInfo(request.Name, request.Address);
+            var validator = new EditPersonalInfoRequestValidator();
+            ValidationResult result = validator.Validate(request);
+
+            if (result.IsValid == false)
+            {
+                return BadRequest(result.Errors[0].ErrorMessage);
+            }
+
+            var address = new Address(
+                request.Address.Street,
+                request.Address.City,
+                request.Address.State,
+                request.Address.ZipCode);
+            student.EditPersonalInfo(request.Name, address);
             _studentRepository.Save(student);
 
             return Ok();
@@ -87,7 +104,13 @@ namespace Api
 
             var resonse = new GetResonse
             {
-                Address = student.Address,
+                Address = new AddressDto
+                {
+                    Street = student.Address.Street,
+                    City = student.Address.City,
+                    State = student.Address.State,
+                    ZipCode = student.Address.ZipCode
+                },
                 Email = student.Email,
                 Name = student.Name,
                 Enrollments = student.Enrollments.Select(x => new CourseEnrollmentDto
