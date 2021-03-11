@@ -6,7 +6,7 @@ namespace Api
     {
         public string Name { get; set; }
         public string Email { get; set; }
-        public AddressDto Address { get; set; }
+        public AddressDto[] Addresses { get; set; }
     }
 
     public class AddressDto
@@ -25,7 +25,7 @@ namespace Api
     public class EditPersonalInfoRequest
     {
         public string Name { get; set; }
-        public AddressDto Address { get; set; }
+        public AddressDto[] Addresses { get; set; }
     }
 
     public class EnrollRequest
@@ -43,7 +43,7 @@ namespace Api
     {
         public string Name { get; set; }
         public string Email { get; set; }
-        public AddressDto Address { get; set; }
+        public AddressDto[] Addresses { get; set; }
         public CourseEnrollmentDto[] Enrollments { get; set; }
     }
 }
