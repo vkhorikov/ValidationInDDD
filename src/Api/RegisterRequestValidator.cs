@@ -9,6 +9,25 @@ namespace Api
             RuleFor(x => x.Name).NotEmpty().Length(0, 200);
             RuleFor(x => x.Email).NotEmpty().Length(0, 150).EmailAddress();
             RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
+            RuleFor(x => x.Phone).SetInheritanceValidator(x =>
+            {
+                x.Add<USPhoneNumberDto>(new USPhoneNumberValidator());
+                x.Add<InternationalPhoneNumberDto>(new InternationalPhoneNumberValidator());
+            });
+        }
+    }
+
+    public class USPhoneNumberValidator : AbstractValidator<USPhoneNumberDto>
+    {
+        public USPhoneNumberValidator()
+        {
+        }
+    }
+
+    public class InternationalPhoneNumberValidator : AbstractValidator<InternationalPhoneNumberDto>
+    {
+        public InternationalPhoneNumberValidator()
+        {
         }
     }
 
