@@ -6,21 +6,14 @@ namespace Api
     {
         public string Name { get; set; }
         public string Email { get; set; }
-        public PhoneNumberDto Phone { get; set; }
         public AddressDto[] Addresses { get; set; }
     }
 
-    public abstract class PhoneNumberDto
+    public class StudentDto
     {
-        public string Number { get; set; }
-    }
-
-    public class USPhoneNumberDto : PhoneNumberDto
-    {
-    }
-
-    public class InternationalPhoneNumberDto : PhoneNumberDto
-    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public AddressDto[] Addresses { get; set; }
     }
 
     public class AddressDto

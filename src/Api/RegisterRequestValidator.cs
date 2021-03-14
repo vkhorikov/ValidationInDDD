@@ -6,28 +6,26 @@ namespace Api
     {
         public RegisterRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().Length(0, 200);
             RuleFor(x => x.Email).NotEmpty().Length(0, 150).EmailAddress();
+            RuleFor(x => x.Name).NotEmpty().Length(0, 200);
             RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
-            RuleFor(x => x.Phone).SetInheritanceValidator(x =>
+        }
+    }
+
+    public class StudentValidator : AbstractValidator<StudentDto>
+    {
+        public StudentValidator()
+        {
+            RuleSet("Create", () =>
             {
-                x.Add<USPhoneNumberDto>(new USPhoneNumberValidator());
-                x.Add<InternationalPhoneNumberDto>(new InternationalPhoneNumberValidator());
+                RuleFor(x => x.Email).NotEmpty().Length(0, 150).EmailAddress();
             });
-        }
-    }
-
-    public class USPhoneNumberValidator : AbstractValidator<USPhoneNumberDto>
-    {
-        public USPhoneNumberValidator()
-        {
-        }
-    }
-
-    public class InternationalPhoneNumberValidator : AbstractValidator<InternationalPhoneNumberDto>
-    {
-        public InternationalPhoneNumberValidator()
-        {
+            RuleSet("Update", () =>
+            {
+                // ...
+            });
+            RuleFor(x => x.Name).NotEmpty().Length(0, 200);
+            RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
         }
     }
 

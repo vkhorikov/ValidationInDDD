@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DomainModel;
 using FluentValidation.Results;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api
@@ -24,7 +25,9 @@ namespace Api
         public IActionResult Register([FromBody] RegisterRequest request)
         {
             var validator = new RegisterRequestValidator();
-            ValidationResult result = validator.Validate(request);
+            ValidationResult result = validator.Validate(
+                request,
+                options => options.IncludeRuleSets("Email").IncludeRulesNotInRuleSet());
 
             if (result.IsValid == false)
             {
