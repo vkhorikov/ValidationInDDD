@@ -16,13 +16,13 @@ namespace Api
     {
         public StudentValidator()
         {
-            RuleSet("Create", () =>
+            RuleSet("Register", () =>
             {
                 RuleFor(x => x.Email).NotEmpty().Length(0, 150).EmailAddress();
             });
-            RuleSet("Update", () =>
+            RuleSet("EditPersonalInfo", () =>
             {
-                // ...
+                // No separate rules for EditPersonalInfo API yet
             });
             RuleFor(x => x.Name).NotEmpty().Length(0, 200);
             RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
