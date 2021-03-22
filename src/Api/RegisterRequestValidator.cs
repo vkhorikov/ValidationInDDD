@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 
 namespace Api
 {
@@ -6,9 +7,35 @@ namespace Api
     {
         public RegisterRequestValidator()
         {
-            RuleFor(x => x.Email).NotEmpty().Length(0, 150).EmailAddress();
             RuleFor(x => x.Name).NotEmpty().Length(0, 200);
             RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
+            
+            When(x => x.Email == null, () =>
+            {
+                RuleFor(x => x.Phone).NotEmpty();
+            });
+            When(x => x.Phone == null, () =>
+            {
+                RuleFor(x => x.Email).NotEmpty();
+            });
+
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .Length(0, 150)
+                .EmailAddress()
+                .When(x => x.Email != null, ApplyConditionTo.CurrentValidator);
+
+            RuleFor(x => x.Phone)
+                .NotEmpty()
+                .Matches("^[2-9][0-9]{9}$")
+                .When(x => x.Phone != null);
+
+
+
+
+            //.Must(x => Regex.IsMatch(x, "^[2-9][0-9]{9}$"))
+            //.When(x => x.Phone != null, ApplyConditionTo.CurrentValidator)
+            //.WithMessage("The phone number is incorrect");
         }
     }
 
