@@ -7,28 +7,33 @@ namespace Api
     {
         public RegisterRequestValidator()
         {
+            CascadeMode = CascadeMode.Stop;
+            
             RuleFor(x => x.Name).NotEmpty().Length(0, 200);
             RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
             
-            When(x => x.Email == null, () =>
-            {
-                RuleFor(x => x.Phone).NotEmpty();
-            });
-            When(x => x.Phone == null, () =>
-            {
-                RuleFor(x => x.Email).NotEmpty();
-            });
+            //When(x => x.Email == null, () =>
+            //{
+            //    RuleFor(x => x.Phone).NotEmpty();
+            //});
+            //When(x => x.Phone == null, () =>
+            //{
+            //    RuleFor(x => x.Email).NotEmpty();
+            //});
 
-            RuleFor(x => x.Email)
-                .NotEmpty()
-                .Length(0, 150)
-                .EmailAddress()
-                .When(x => x.Email != null, ApplyConditionTo.CurrentValidator);
+            //RuleFor(x => x.Email)
+            //    .NotEmpty()
+            //    .Length(0, 150)
+            //    .EmailAddress()
+            //    .When(x => x.Email != null);
 
             RuleFor(x => x.Phone)
+                //.Cascade(CascadeMode.Stop)
                 .NotEmpty()
-                .Matches("^[2-9][0-9]{9}$")
-                .When(x => x.Phone != null);
+                .Must(x => Regex.IsMatch(x, "^[2-9][0-9]{9}$"))
+                .WithMessage("The phone number is incorrect");
+            //.Matches("^[2-9][0-9]{9}$")
+            //.When(x => x.Phone != null);
 
 
 

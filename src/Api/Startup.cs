@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,8 @@ namespace Api
 
             services.AddTransient<StudentRepository>();
             services.AddTransient<CourseRepository>();
+
+            ValidatorOptions.Global.CascadeMode = CascadeMode.Stop;
         }
 
         public void Configure(IApplicationBuilder app)
