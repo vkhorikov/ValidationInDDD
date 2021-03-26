@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,12 +9,11 @@ namespace Api
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-
+            services.AddControllers()
+                .AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<RegisterRequestValidator>());
+            
             services.AddTransient<StudentRepository>();
             services.AddTransient<CourseRepository>();
-
-            ValidatorOptions.Global.CascadeMode = CascadeMode.Stop;
         }
 
         public void Configure(IApplicationBuilder app)

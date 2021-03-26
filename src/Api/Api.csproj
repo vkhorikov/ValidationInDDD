@@ -9,7 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="10.0.0-preview2" />
+    <PackageReference Include="FluentValidation" Version="10.0.0-preview4" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="10.0.0-preview4" />
   </ItemGroup>
 
   <ItemGroup>

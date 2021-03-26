@@ -24,6 +24,16 @@ namespace Api
         [HttpPost]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                string[] errors = ModelState
+                    .Where(x => x.Value.Errors.Any())
+                    .Select(x => x.Value.Errors.First().ErrorMessage)
+                    .ToArray();
+                
+                return BadRequest(string.Join(", ", errors));
+            }
+            
             var validator = new RegisterRequestValidator();
             ValidationResult result = validator.Validate(request);
 
