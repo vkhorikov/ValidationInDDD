@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using FluentValidation;
 
 namespace Api
@@ -54,13 +55,32 @@ namespace Api
         public AddressesValidator()
         {
             RuleFor(x => x)
-                .Must(x => x?.Length >= 1 && x.Length <= 3)
-                .WithMessage("The number of addresses must be between 1 and 3")
+                .ListMustContainNumberOfItems(1, 3)
                 .ForEach(x =>
                 {
                     x.NotNull();
                     x.SetValidator(new AddressValidator());
                 });
+        }
+    }
+
+    public static class CustomValidators
+    {
+        public static IRuleBuilderOptionsConditions<T, IList<TElement>> ListMustContainNumberOfItems<T, TElement>(
+            this IRuleBuilder<T, IList<TElement>> ruleBuilder, int? min = null, int? max = null)
+        {
+            return ruleBuilder.Custom((list, context) =>
+            {
+                if (min.HasValue && list.Count < min.Value)
+                {
+                    context.AddFailure($"The list must contain {min.Value} items or more. It contains {list.Count} items.");
+                }
+
+                if (max.HasValue && list.Count > max.Value)
+                {
+                    context.AddFailure($"The list must contain {max.Value} items or fewer. It contains {list.Count} items.");
+                }
+            });
         }
     }
 
