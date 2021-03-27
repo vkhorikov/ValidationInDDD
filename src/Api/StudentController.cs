@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api
 {
     [Route("api/students")]
-    public class StudentController : Controller
+    public class StudentController : ApplicationController
     {
         private readonly StudentRepository _studentRepository;
         private readonly CourseRepository _courseRepository;
@@ -22,17 +22,17 @@ namespace Api
         }
 
         [HttpPost]
-        public IActionResult Register([FromBody] RegisterRequest request)
+        public IActionResult Register(RegisterRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                string[] errors = ModelState
-                    .Where(x => x.Value.Errors.Any())
-                    .Select(x => x.Value.Errors.First().ErrorMessage)
-                    .ToArray();
+            //if (!ModelState.IsValid)
+            //{
+            //    string[] errors = ModelState
+            //        .Where(x => x.Value.Errors.Any())
+            //        .Select(x => x.Value.Errors.First().ErrorMessage)
+            //        .ToArray();
                 
-                return BadRequest(string.Join(", ", errors));
-            }
+            //    return BadRequest(string.Join(", ", errors));
+            //}
             
             var validator = new RegisterRequestValidator();
             ValidationResult result = validator.Validate(request);
@@ -62,7 +62,7 @@ namespace Api
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditPersonalInfo(long id, [FromBody] EditPersonalInfoRequest request)
+        public IActionResult EditPersonalInfo(long id, EditPersonalInfoRequest request)
         {
             // Check that the student exists
             Student student = _studentRepository.GetById(id);
@@ -85,7 +85,7 @@ namespace Api
         }
 
         [HttpPost("{id}/enrollments")]
-        public IActionResult Enroll(long id, [FromBody] EnrollRequest request)
+        public IActionResult Enroll(long id, EnrollRequest request)
         {
             // Check that the student exists
             // Check that the courses exist
