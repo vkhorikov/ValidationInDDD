@@ -24,16 +24,6 @@ namespace Api
         [HttpPost]
         public IActionResult Register(RegisterRequest request)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    string[] errors = ModelState
-            //        .Where(x => x.Value.Errors.Any())
-            //        .Select(x => x.Value.Errors.First().ErrorMessage)
-            //        .ToArray();
-                
-            //    return BadRequest(string.Join(", ", errors));
-            //}
-            
             var validator = new RegisterRequestValidator();
             ValidationResult result = validator.Validate(request);
 
@@ -51,7 +41,9 @@ namespace Api
             Address[] addresses = request.Addresses
                 .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
                 .ToArray();
-            var student = new Student(request.Email, request.Name, addresses);
+            var email = new Email(request.Email);
+            var name = new StudentName(request.Name);
+            var student = new Student(email, name, addresses);
             _studentRepository.Save(student);
 
             var response = new RegisterResponse
@@ -78,7 +70,7 @@ namespace Api
             Address[] addresses = request.Addresses
                 .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
                 .ToArray();
-            student.EditPersonalInfo(request.Name, addresses);
+            //student.EditPersonalInfo(request.Name, addresses);
             _studentRepository.Save(student);
 
             return Ok();
@@ -120,8 +112,8 @@ namespace Api
                         ZipCode = x.ZipCode
                     })
                     .ToArray(),
-                Email = student.Email,
-                Name = student.Name,
+                Email = student.Email.Value,
+                Name = student.Name.Value,
                 Enrollments = student.Enrollments.Select(x => new CourseEnrollmentDto
                 {
                     Course = x.Course.Name,
