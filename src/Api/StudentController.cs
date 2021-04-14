@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CSharpFunctionalExtensions;
 using DomainModel;
 using FluentValidation.Results;
 using FluentValidation;
@@ -24,14 +25,6 @@ namespace Api
         [HttpPost]
         public IActionResult Register(RegisterRequest request)
         {
-            var validator = new RegisterRequestValidator();
-            ValidationResult result = validator.Validate(request);
-
-            if (result.IsValid == false)
-            {
-                return BadRequest(result.Errors[0].ErrorMessage);
-            }
-
             //if (request == null)
             //    return BadRequest("Request cannot be empty");
             // Email should be unique
@@ -41,9 +34,14 @@ namespace Api
             Address[] addresses = request.Addresses
                 .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
                 .ToArray();
-            var email = new Email(request.Email);
-            var name = new StudentName(request.Name);
-            var student = new Student(email, name, addresses);
+            Result<Email> email = Email.Create(request.Email);
+            Result<StudentName> name = StudentName.Create(request.Name);
+            if (email.IsFailure)
+                return BadRequest(email.Error);
+            if (name.IsFailure)
+                return BadRequest(name.Error);
+            
+            var student = new Student(email.Value, name.Value, addresses);
             _studentRepository.Save(student);
 
             var response = new RegisterResponse
