@@ -34,14 +34,11 @@ namespace Api
             Address[] addresses = request.Addresses
                 .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
                 .ToArray();
-            Result<Email> email = Email.Create(request.Email);
-            Result<StudentName> name = StudentName.Create(request.Name);
-            if (email.IsFailure)
-                return BadRequest(email.Error);
-            if (name.IsFailure)
-                return BadRequest(name.Error);
             
-            var student = new Student(email.Value, name.Value, addresses);
+            Email email = Email.Create(request.Email).Value;
+            StudentName name = StudentName.Create(request.Name).Value;
+            
+            var student = new Student(email, name, addresses);
             _studentRepository.Save(student);
 
             var response = new RegisterResponse

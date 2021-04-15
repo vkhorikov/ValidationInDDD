@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using CSharpFunctionalExtensions;
+using DomainModel;
 using FluentValidation;
 
 namespace Api
@@ -8,7 +11,7 @@ namespace Api
     {
         public RegisterRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().Length(0, 200);
+            RuleFor(x => x.Name).NotEmpty().MustBeValueObject(StudentName.Create);
             RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
 
             When(x => x.Email == null, () =>
@@ -20,10 +23,15 @@ namespace Api
                 RuleFor(x => x.Email).NotEmpty();
             });
 
+            //RuleFor(x => x.Email)
+            //    .NotEmpty()
+            //    .Length(0, 150)
+            //    .EmailAddress()
+            //    .When(x => x.Email != null);
+
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .Length(0, 150)
-                .EmailAddress()
+                .MustBeValueObject(Email.Create)
                 .When(x => x.Email != null);
 
             RuleFor(x => x.Phone)
@@ -66,6 +74,24 @@ namespace Api
 
     public static class CustomValidators
     {
+        public static IRuleBuilderOptions<T, string> MustBeValueObject<T, TValueObject>(
+            this IRuleBuilder<T, string> ruleBuilder, Func<string, Result<TValueObject>> factoryMethod)
+            where TValueObject : ValueObject
+        {
+            return (IRuleBuilderOptions<T, string>)ruleBuilder.Custom((value, context) =>
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    return;
+
+                Result<TValueObject> result = factoryMethod(value);
+
+                if (result.IsFailure)
+                {
+                    context.AddFailure(result.Error);
+                }
+            });
+        }
+
         public static IRuleBuilderOptionsConditions<T, IList<TElement>> ListMustContainNumberOfItems<T, TElement>(
             this IRuleBuilder<T, IList<TElement>> ruleBuilder, int? min = null, int? max = null)
         {

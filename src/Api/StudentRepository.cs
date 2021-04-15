@@ -42,8 +42,8 @@ namespace Api
         private static Student Alice()
         {
             var alice = new Student(
-                new Email("alice@gmail.com"),
-                new StudentName("Alice Alison"),
+                Email.Create("alice@gmail.com").Value,
+                StudentName.Create("Alice Alison").Value,
                 new[] { new Address("1234 Main St", "Arlington", "VA", "22201") });
             SetId(alice, 1);
             alice.Enroll(new Course(1, "Calculus", 5), Grade.A);
@@ -54,8 +54,8 @@ namespace Api
         private static Student Bob()
         {
             var bob = new Student(
-                new Email("bob@gmail.com"),
-                new StudentName("Bob Bobson"),
+                Email.Create("bob@gmail.com").Value,
+                StudentName.Create("Bob Bobson").Value,
                 new[] { new Address("2345 Second St", "Barlington", "VA", "22202") });
             SetId(bob, 2);
             bob.Enroll(new Course(2, "History", 4), Grade.B);
