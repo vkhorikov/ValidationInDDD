@@ -4,16 +4,17 @@ using System.Text.RegularExpressions;
 using CSharpFunctionalExtensions;
 using DomainModel;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Api
 {
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
-        public RegisterRequestValidator()
+        public RegisterRequestValidator(StateRepository repository)
         {
             // Transform(x => x.Name, x => (x ?? "").Trim()).NotEmpty().Length(0, 200);
             RuleFor(x => x.Name).NotEmpty().Length(0, 200);
-            RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
+            RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator(repository));
 
             When(x => x.Email == null, () =>
             {
@@ -35,26 +36,9 @@ namespace Api
         }
     }
 
-    public class StudentValidator : AbstractValidator<StudentDto>
-    {
-        public StudentValidator()
-        {
-            RuleSet("Register", () =>
-            {
-                RuleFor(x => x.Email).NotEmpty().Length(0, 150).EmailAddress();
-            });
-            RuleSet("EditPersonalInfo", () =>
-            {
-                // No separate rules for EditPersonalInfo API yet
-            });
-            RuleFor(x => x.Name).NotEmpty().Length(0, 200);
-            RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
-        }
-    }
-
     public class AddressesValidator : AbstractValidator<AddressDto[]>
     {
-        public AddressesValidator()
+        public AddressesValidator(StateRepository repository)
         {
             RuleFor(x => x)
                 .ListMustContainNumberOfItems(1, 3)
@@ -64,9 +48,10 @@ namespace Api
                     x.ChildRules(address =>
                     {
                         address.CascadeMode = CascadeMode.Stop;
-                        address.RuleFor(y => y.State).MustBeValueObject(State.Create);
+                        address.RuleFor(y => y.State)
+                            .MustBeValueObject(s => State.Create(s, repository.GetAll()));
                         address.RuleFor(y => y)
-                            .MustBeEntity(y => Address.Create(y.Street, y.City, y.State, y.ZipCode));
+                            .MustBeEntity(y => Address.Create(y.Street, y.City, y.State, y.ZipCode, repository.GetAll()));
                     });
                 });
         }
@@ -139,10 +124,10 @@ namespace Api
 
     public class EditPersonalInfoRequestValidator : AbstractValidator<EditPersonalInfoRequest>
     {
-        public EditPersonalInfoRequestValidator()
+        public EditPersonalInfoRequestValidator(StateRepository repository)
         {
             RuleFor(x => x.Name).NotEmpty().Length(0, 200);
-            RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator());
+            RuleFor(x => x.Addresses).NotNull().SetValidator(new AddressesValidator(repository));
         }
     }
 }

@@ -14,12 +14,14 @@ namespace Api
     {
         private readonly StudentRepository _studentRepository;
         private readonly CourseRepository _courseRepository;
+        private readonly StateRepository _stateRepository;
 
         public StudentController(
-            StudentRepository studentRepository, CourseRepository courseRepository)
+            StudentRepository studentRepository, CourseRepository courseRepository, StateRepository stateRepository)
         {
             _studentRepository = studentRepository;
             _courseRepository = courseRepository;
+            _stateRepository = stateRepository;
         }
 
         [HttpPost]
@@ -32,7 +34,7 @@ namespace Api
             // Return a list of errors, not just the first one
 
             Address[] addresses = request.Addresses
-                .Select(x => Address.Create(x.Street, x.City, x.State, x.ZipCode).Value)
+                .Select(x => Address.Create(x.Street, x.City, x.State, x.ZipCode, _stateRepository.GetAll()).Value)
                 .ToArray();
 
             Email email = Email.Create(request.Email).Value;
@@ -54,13 +56,13 @@ namespace Api
             // Check that the student exists
             Student student = _studentRepository.GetById(id);
 
-            var validator = new EditPersonalInfoRequestValidator();
-            ValidationResult result = validator.Validate(request);
+            //var validator = new EditPersonalInfoRequestValidator();
+            //ValidationResult result = validator.Validate(request);
 
-            if (result.IsValid == false)
-            {
-                return BadRequest(result.Errors[0].ErrorMessage);
-            }
+            //if (result.IsValid == false)
+            //{
+            //    return BadRequest(result.Errors[0].ErrorMessage);
+            //}
 
             //Address[] addresses = request.Addresses
             //    .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))

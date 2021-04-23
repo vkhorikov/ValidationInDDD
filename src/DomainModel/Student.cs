@@ -60,9 +60,9 @@ namespace DomainModel
         }
 
         public static Result<Address> Create(
-            string street, string city, string state, string zipCode)
+            string street, string city, string state, string zipCode, string[] allStates)
         {
-            State stateObject = State.Create(state).Value;
+            State stateObject = State.Create(state, allStates).Value;
 
             street = (street ?? "").Trim();
             city = (city ?? "").Trim();
@@ -83,10 +83,6 @@ namespace DomainModel
 
     public class State : ValueObject
     {
-        public static readonly State VA = new State("VA");
-        public static readonly State DC = new State("DC");
-        public static readonly State[] All = { VA, DC };
-
         public string Value { get; }
 
         private State(string value)
@@ -94,17 +90,17 @@ namespace DomainModel
             Value = value;
         }
 
-        public static Result<State> Create(string input)
+        public static Result<State> Create(string input, string[] allStates)
         {
             if (string.IsNullOrWhiteSpace(input))
                 return Result.Failure<State>("Value is required");
-
-            string name = input.Trim();
+            
+            string name = input.Trim().ToUpper();
 
             if (name.Length > 2)
                 return Result.Failure<State>("Value is too long");
 
-            if (All.Any(x => x.Value == name.ToUpper()) == false)
+            if (allStates.Any(x => x == name) == false)
                 return Result.Failure<State>("State is invalid");
 
             return Result.Success(new State(name));
