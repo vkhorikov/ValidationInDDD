@@ -43,8 +43,8 @@ namespace Api
         {
             var alice = new Student(
                 Email.Create("alice@gmail.com").Value,
-                StudentName.Create("Alice Alison").Value,
-                new[] { new Address("1234 Main St", "Arlington", "VA", "22201") });
+                "Alice Alison",
+                new[] { Address.Create("1234 Main St", "Arlington", "VA", "22201").Value });
             SetId(alice, 1);
             alice.Enroll(new Course(1, "Calculus", 5), Grade.A);
 
@@ -55,8 +55,8 @@ namespace Api
         {
             var bob = new Student(
                 Email.Create("bob@gmail.com").Value,
-                StudentName.Create("Bob Bobson").Value,
-                new[] { new Address("2345 Second St", "Barlington", "VA", "22202") });
+                "Bob Bobson",
+                new[] { Address.Create("2345 Second St", "Barlington", "VA", "22202").Value });
             SetId(bob, 2);
             bob.Enroll(new Course(2, "History", 4), Grade.B);
             

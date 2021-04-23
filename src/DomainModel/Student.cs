@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSharpFunctionalExtensions;
 
 namespace DomainModel
 {
     public class Student : Entity
     {
         public Email Email { get; }
-        public StudentName Name { get; private set; }
+        public string Name { get; private set; }
         public Address[] Addresses { get; private set; }
 
         private readonly List<Enrollment> _enrollments = new List<Enrollment>();
@@ -17,14 +18,14 @@ namespace DomainModel
         {
         }
 
-        public Student(Email email, StudentName name, Address[] addresses)
+        public Student(Email email, string name, Address[] addresses)
             : this()
         {
             Email = email;
             EditPersonalInfo(name, addresses);
         }
 
-        public void EditPersonalInfo(StudentName name, Address[] addresses)
+        public void EditPersonalInfo(string name, Address[] addresses)
         {
             Name = name;
             Addresses = addresses;
@@ -43,19 +44,75 @@ namespace DomainModel
         }
     }
 
-    public class Address
+    public class Address : Entity
     {
         public string Street { get; }
         public string City { get; }
-        public string State { get; }
+        public State State { get; }
         public string ZipCode { get; }
 
-        public Address(string street, string city, string state, string zipCode)
+        private Address(string street, string city, State state, string zipCode)
         {
             Street = street;
             City = city;
             State = state;
             ZipCode = zipCode;
+        }
+
+        public static Result<Address> Create(
+            string street, string city, string state, string zipCode)
+        {
+            State stateObject = State.Create(state).Value;
+
+            street = (street ?? "").Trim();
+            city = (city ?? "").Trim();
+            zipCode = (zipCode ?? "").Trim();
+
+            if (street.Length < 1 || street.Length > 100)
+                return Result.Failure<Address>("Invalid street length");
+
+            if (city.Length < 1 || city.Length > 40)
+                return Result.Failure<Address>("Invalid city length");
+            
+            if (zipCode.Length < 1 || zipCode.Length > 5)
+                return Result.Failure<Address>("Invalid zip code length");
+
+            return new Address(street, city, stateObject, zipCode);
+        }
+    }
+
+    public class State : ValueObject
+    {
+        public static readonly State VA = new State("VA");
+        public static readonly State DC = new State("DC");
+        public static readonly State[] All = { VA, DC };
+
+        public string Value { get; }
+
+        private State(string value)
+        {
+            Value = value;
+        }
+
+        public static Result<State> Create(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return Result.Failure<State>("Value is required");
+
+            string name = input.Trim();
+
+            if (name.Length > 2)
+                return Result.Failure<State>("Value is too long");
+
+            if (All.Any(x => x.Value == name.ToUpper()) == false)
+                return Result.Failure<State>("State is invalid");
+
+            return Result.Success(new State(name));
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
         }
     }
 }

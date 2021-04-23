@@ -32,12 +32,12 @@ namespace Api
             // Return a list of errors, not just the first one
 
             Address[] addresses = request.Addresses
-                .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
+                .Select(x => Address.Create(x.Street, x.City, x.State, x.ZipCode).Value)
                 .ToArray();
-            
+
             Email email = Email.Create(request.Email).Value;
-            StudentName name = StudentName.Create(request.Name).Value;
-            
+            string name = request.Name.Trim();
+
             var student = new Student(email, name, addresses);
             _studentRepository.Save(student);
 
@@ -62,9 +62,9 @@ namespace Api
                 return BadRequest(result.Errors[0].ErrorMessage);
             }
 
-            Address[] addresses = request.Addresses
-                .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
-                .ToArray();
+            //Address[] addresses = request.Addresses
+            //    .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
+            //    .ToArray();
             //student.EditPersonalInfo(request.Name, addresses);
             _studentRepository.Save(student);
 
@@ -103,12 +103,12 @@ namespace Api
                     {
                         Street = x.Street,
                         City = x.City,
-                        State = x.State,
+                        State = x.State.Value,
                         ZipCode = x.ZipCode
                     })
                     .ToArray(),
                 Email = student.Email.Value,
-                Name = student.Name.Value,
+                Name = student.Name,
                 Enrollments = student.Enrollments.Select(x => new CourseEnrollmentDto
                 {
                     Course = x.Course.Name,
