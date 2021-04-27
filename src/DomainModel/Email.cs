@@ -13,20 +13,20 @@ namespace DomainModel
             Value = value;
         }
 
-        public static Result<Email> Create(string input)
+        public static Result<Email, Error> Create(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
-                return Result.Failure<Email>("Value is required");
+                return Errors.General.ValueIsRequired();
 
             string email = input.Trim();
 
             if (email.Length > 150)
-                return Result.Failure<Email>("Value is too long");
+                return Errors.General.InvalidLength();
 
             if (Regex.IsMatch(email, @"^(.+)@(.+)$") == false)
-                return Result.Failure<Email>("Value is invalid");
+                return Errors.General.ValueIsInvalid();
 
-            return Result.Success(new Email(email));
+            return new Email(email);
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

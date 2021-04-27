@@ -59,7 +59,7 @@ namespace DomainModel
             ZipCode = zipCode;
         }
 
-        public static Result<Address> Create(
+        public static Result<Address, Error> Create(
             string street, string city, string state, string zipCode, string[] allStates)
         {
             State stateObject = State.Create(state, allStates).Value;
@@ -69,13 +69,13 @@ namespace DomainModel
             zipCode = (zipCode ?? "").Trim();
 
             if (street.Length < 1 || street.Length > 100)
-                return Result.Failure<Address>("Invalid street length");
+                return Errors.General.InvalidLength("street");
 
             if (city.Length < 1 || city.Length > 40)
-                return Result.Failure<Address>("Invalid city length");
-            
+                return Errors.General.InvalidLength("city");
+
             if (zipCode.Length < 1 || zipCode.Length > 5)
-                return Result.Failure<Address>("Invalid zip code length");
+                return Errors.General.InvalidLength("zip code");
 
             return new Address(street, city, stateObject, zipCode);
         }
@@ -90,20 +90,20 @@ namespace DomainModel
             Value = value;
         }
 
-        public static Result<State> Create(string input, string[] allStates)
+        public static Result<State, Error> Create(string input, string[] allStates)
         {
             if (string.IsNullOrWhiteSpace(input))
-                return Result.Failure<State>("Value is required");
+                return Errors.General.ValueIsRequired();
             
             string name = input.Trim().ToUpper();
 
             if (name.Length > 2)
-                return Result.Failure<State>("Value is too long");
+                return Errors.General.InvalidLength();
 
             if (allStates.Any(x => x == name) == false)
-                return Result.Failure<State>("State is invalid");
+                return Errors.Student.InvalidState(name);
 
-            return Result.Success(new State(name));
+            return new State(name);
         }
 
         protected override IEnumerable<object> GetEqualityComponents()
