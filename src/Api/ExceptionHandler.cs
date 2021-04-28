@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
+using DomainModel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -33,9 +35,13 @@ namespace Api
         private Task HandleException(HttpContext context, Exception exception)
         {
             string errorMessage = _env.IsProduction() ? "Internal server error" : "Exception: " + exception.Message;
+            Error error = Errors.General.InternalServerError(errorMessage);
+            Envelope envelope = Envelope.Error(error, null);
+            string result = JsonSerializer.Serialize(envelope);
+            
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            return context.Response.WriteAsync(errorMessage);
+            return context.Response.WriteAsync(result);
         }
     }
 }

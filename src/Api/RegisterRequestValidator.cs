@@ -24,7 +24,7 @@ namespace Api
             {
                 RuleFor(x => x.Email).NotEmpty();
             });
-            
+
             RuleFor(x => x.Email)
                 .MustBeValueObject(Email.Create)
                 .When(x => x.Email != null);
@@ -59,6 +59,18 @@ namespace Api
 
     public static class CustomValidators
     {
+        public static IRuleBuilderOptions<T, TProperty> NotEmpty<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder)
+        {
+            return DefaultValidatorExtensions.NotEmpty(ruleBuilder)
+                .WithMessage(Errors.General.ValueIsRequired().Serialize());
+        }
+
+        public static IRuleBuilderOptions<T, string> Length<T>(this IRuleBuilder<T, string> ruleBuilder, int min, int max)
+        {
+            return DefaultValidatorExtensions.Length(ruleBuilder, min, max)
+                .WithMessage(Errors.General.InvalidLength().Serialize());
+        }
+
         public static IRuleBuilderOptions<T, TElement> MustBeEntity<T, TElement, TValueObject>(
             this IRuleBuilder<T, TElement> ruleBuilder,
             Func<TElement, Result<TValueObject, Error>> factoryMethod)
@@ -70,7 +82,7 @@ namespace Api
 
                 if (result.IsFailure)
                 {
-                    context.AddFailure(result.Error.Code);
+                    context.AddFailure(result.Error.Serialize());
                 }
             });
         }
@@ -86,7 +98,7 @@ namespace Api
 
                 if (result.IsFailure)
                 {
-                    context.AddFailure(result.Error.Code);
+                    context.AddFailure(result.Error.Serialize());
                 }
             });
         }
@@ -98,12 +110,12 @@ namespace Api
             {
                 if (min.HasValue && list.Count < min.Value)
                 {
-                    context.AddFailure($"The list must contain {min.Value} items or more. It contains {list.Count} items.");
+                    context.AddFailure(Errors.General.CollectionIsTooSmall(min.Value, list.Count).Serialize());
                 }
 
                 if (max.HasValue && list.Count > max.Value)
                 {
-                    context.AddFailure($"The list must contain {max.Value} items or fewer. It contains {list.Count} items.");
+                    context.AddFailure(Errors.General.CollectionIsTooLarge(max.Value, list.Count).Serialize());
                 }
             });
         }
