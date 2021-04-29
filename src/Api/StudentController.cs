@@ -27,11 +27,7 @@ namespace Api
         [HttpPost]
         public IActionResult Register(RegisterRequest request)
         {
-            //if (request == null)
-            //    return BadRequest("Request cannot be empty");
             // Email should be unique
-            // Error codes
-            // Return a list of errors, not just the first one
 
             Address[] addresses = request.Addresses
                 .Select(x => Address.Create(x.Street, x.City, x.State, x.ZipCode, _stateRepository.GetAll()).Value)

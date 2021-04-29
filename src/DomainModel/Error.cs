@@ -29,6 +29,9 @@ namespace DomainModel
 
         public static Error Deserialize(string serialized)
         {
+            if (serialized == "A non-empty request body is required.")
+                return Errors.General.ValueIsRequired();
+            
             string[] data = serialized.Split(new[] { Separator }, StringSplitOptions.RemoveEmptyEntries);
 
             if (data.Length < 2)
