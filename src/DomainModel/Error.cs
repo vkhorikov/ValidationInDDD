@@ -45,8 +45,8 @@ namespace DomainModel
     {
         public static class Student
         {
-            public static Error EmailIsTaken(string email) =>
-                new Error("student.email.is.taken", $"Student email '{email}' is taken");
+            public static Error EmailIsTaken() =>
+                new Error("student.email.is.taken", "Student email is taken");
 
             public static Error InvalidState(string name) =>
                 new Error("invalid.state", $"Invalid state: '{name}'");

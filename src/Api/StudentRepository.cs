@@ -19,6 +19,11 @@ namespace Api
             return _existingStudents.SingleOrDefault(x => x.Id == id);
         }
 
+        public Student GetByEmail(Email email)
+        {
+            return _existingStudents.SingleOrDefault(x => x.Email == email);
+        }
+
         public void Save(Student student)
         {
             // Setting up the id for new students emulates the ORM behavior

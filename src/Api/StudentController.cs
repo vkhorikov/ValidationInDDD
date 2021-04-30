@@ -36,6 +36,10 @@ namespace Api
             Email email = Email.Create(request.Email).Value;
             string name = request.Name.Trim();
 
+            Student existingStudent = _studentRepository.GetByEmail(email);
+            if (existingStudent != null)
+                return Error(Errors.Student.EmailIsTaken());
+
             var student = new Student(email, name, addresses);
             _studentRepository.Save(student);
 
