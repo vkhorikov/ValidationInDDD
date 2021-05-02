@@ -16,5 +16,10 @@ namespace Api
         {
             return _allCourses.SingleOrDefault(x => x.Name == name);
         }
+
+        public Course[] GetAll()
+        {
+            return _allCourses;
+        }
     }
 }

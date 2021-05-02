@@ -56,6 +56,9 @@ namespace DomainModel
 
             public static Error InvalidState(string name) =>
                 new Error("invalid.state", $"Invalid state: '{name}'");
+
+            public static Error CourseIsInvalid() =>
+                new Error("course.is.invalid", "Course is invalid");
         }
 
         public static class General

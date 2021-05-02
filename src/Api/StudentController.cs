@@ -73,21 +73,18 @@ namespace Api
             if (student == null)
                 return Error(Errors.General.NotFound(), nameof(id));
 
-            for (int i = 0; i < request.Enrollments.Length; i++)
-            {
-                CourseEnrollmentDto dto = request.Enrollments[i];
+            (string Course, string Grade)[] input = request.Enrollments
+                .Select(x => (x.Course, x.Grade))
+                .ToArray();
+            Course[] allCourses = _courseRepository.GetAll();
 
-                Grade grade = Grade.Create(dto.Grade).Value;
+            Result<Enrollment[], Error> enrollmentsOrError = Enrollment.Create(input, allCourses);
+            if (enrollmentsOrError.IsFailure)
+                return Error(enrollmentsOrError.Error);
 
-                string courseName = (dto.Course ?? "").Trim();
-                Course course = _courseRepository.GetByName(courseName);
-                if (course == null)
-                    return Error(Errors.General.ValueIsInvalid(), $"{nameof(request.Enrollments)}[{i}].{nameof(dto.Course)}");
-
-                Result<object, Error> result = student.Enroll(course, grade);
-                if (result.IsFailure)
-                    return Error(result.Error);
-            }
+            Result<object, Error> result = student.Enroll(enrollmentsOrError.Value);
+            if (result.IsFailure)
+                return Error(result.Error);
 
             return Ok();
         }
@@ -112,8 +109,8 @@ namespace Api
                 Name = student.Name,
                 Enrollments = student.Enrollments.Select(x => new CourseEnrollmentDto
                 {
-                    Course = x.Course.Name,
-                    Grade = x.Grade.ToString()
+                    Course = x.Enrollment.Course.Name,
+                    Grade = x.Enrollment.Grade.ToString()
                 }).ToArray()
             };
             return Ok(resonse);

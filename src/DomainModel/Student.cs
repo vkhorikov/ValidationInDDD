@@ -11,8 +11,8 @@ namespace DomainModel
         public string Name { get; private set; }
         public Address[] Addresses { get; private set; }
 
-        private readonly List<Enrollment> _enrollments = new List<Enrollment>();
-        public virtual IReadOnlyList<Enrollment> Enrollments => _enrollments.ToList();
+        private readonly List<StudentEnrollment> _enrollments = new List<StudentEnrollment>();
+        public virtual IReadOnlyList<StudentEnrollment> Enrollments => _enrollments.ToList();
 
         protected Student()
         {
@@ -31,16 +31,21 @@ namespace DomainModel
             Addresses = addresses;
         }
 
-        public virtual Result<object, Error> Enroll(Course course, Grade grade)
+        public virtual Result<object, Error> Enroll(Enrollment[] enrollments)
         {
-            if (_enrollments.Count >= 2)
+            if (_enrollments.Count + enrollments.Length > 2)
                 return Errors.Student.TooManyEnrollments();
 
-            if (_enrollments.Any(x => x.Course == course))
-                return Errors.Student.AlreadyEnrolled(course.Name);
+            StudentEnrollment existingEnrollment = _enrollments
+                .FirstOrDefault(x => enrollments.Any(e => x.Enrollment == e));
 
-            var enrollment = new Enrollment(this, course, grade);
-            _enrollments.Add(enrollment);
+            if (existingEnrollment != null)
+                return Errors.Student.AlreadyEnrolled(existingEnrollment.Enrollment.Course.Name);
+
+            foreach (Enrollment enrollment in enrollments)
+            {
+                _enrollments.Add(new StudentEnrollment(this, enrollment));
+            }
 
             return new object(); // Unit class
         }
