@@ -45,6 +45,12 @@ namespace DomainModel
     {
         public static class Student
         {
+            public static Error TooManyEnrollments() =>
+                new Error("student.too.many.enrollments", "Student cannot have more than 2 enrollments");
+
+            public static Error AlreadyEnrolled(string courseName) =>
+                new Error("student.already.enrolled", $"Student is already enrolled into course '{courseName}'");
+            
             public static Error EmailIsTaken() =>
                 new Error("student.email.is.taken", "Student email is taken");
 

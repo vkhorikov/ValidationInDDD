@@ -27,8 +27,6 @@ namespace Api
         [HttpPost]
         public IActionResult Register(RegisterRequest request)
         {
-            // Email should be unique
-
             Address[] addresses = request.Addresses
                 .Select(x => Address.Create(x.Street, x.City, x.State, x.ZipCode, _stateRepository.GetAll()).Value)
                 .ToArray();
@@ -53,21 +51,16 @@ namespace Api
         [HttpPut("{id}")]
         public IActionResult EditPersonalInfo(long id, EditPersonalInfoRequest request)
         {
-            // Check that the student exists
             Student student = _studentRepository.GetById(id);
+            if (student == null)
+                return Error(Errors.General.NotFound(), nameof(id));
 
-            //var validator = new EditPersonalInfoRequestValidator();
-            //ValidationResult result = validator.Validate(request);
-
-            //if (result.IsValid == false)
-            //{
-            //    return BadRequest(result.Errors[0].ErrorMessage);
-            //}
-
-            //Address[] addresses = request.Addresses
-            //    .Select(x => new Address(x.Street, x.City, x.State, x.ZipCode))
-            //    .ToArray();
-            //student.EditPersonalInfo(request.Name, addresses);
+            Address[] addresses = request.Addresses
+                .Select(x => Address.Create(x.Street, x.City, x.State, x.ZipCode, _stateRepository.GetAll()).Value)
+                .ToArray();
+            string name = request.Name.Trim();
+            
+            student.EditPersonalInfo(name, addresses);
             _studentRepository.Save(student);
 
             return Ok();
@@ -76,18 +69,24 @@ namespace Api
         [HttpPost("{id}/enrollments")]
         public IActionResult Enroll(long id, EnrollRequest request)
         {
-            // Check that the student exists
-            // Check that the courses exist
-            // Grade is correctly parsed
-            // Business rules in the Enroll method
             Student student = _studentRepository.GetById(id);
+            if (student == null)
+                return Error(Errors.General.NotFound(), nameof(id));
 
-            foreach (CourseEnrollmentDto enrollmentDto in request.Enrollments)
+            for (int i = 0; i < request.Enrollments.Length; i++)
             {
-                Course course = _courseRepository.GetByName(enrollmentDto.Course);
-                var grade = Enum.Parse<Grade>(enrollmentDto.Grade);
-                
-                student.Enroll(course, grade);
+                CourseEnrollmentDto dto = request.Enrollments[i];
+
+                Grade grade = Grade.Create(dto.Grade).Value;
+
+                string courseName = (dto.Course ?? "").Trim();
+                Course course = _courseRepository.GetByName(courseName);
+                if (course == null)
+                    return Error(Errors.General.ValueIsInvalid(), $"{nameof(request.Enrollments)}[{i}].{nameof(dto.Course)}");
+
+                Result<object, Error> result = student.Enroll(course, grade);
+                if (result.IsFailure)
+                    return Error(result.Error);
             }
 
             return Ok();

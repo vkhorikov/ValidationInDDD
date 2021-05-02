@@ -31,16 +31,18 @@ namespace DomainModel
             Addresses = addresses;
         }
 
-        public virtual void Enroll(Course course, Grade grade)
+        public virtual Result<object, Error> Enroll(Course course, Grade grade)
         {
             if (_enrollments.Count >= 2)
-                throw new Exception("Cannot have more than 2 enrollments");
-            
+                return Errors.Student.TooManyEnrollments();
+
             if (_enrollments.Any(x => x.Course == course))
-                throw new Exception($"Student '{Name}' already enrolled into course '{course.Name}'");
+                return Errors.Student.AlreadyEnrolled(course.Name);
 
             var enrollment = new Enrollment(this, course, grade);
             _enrollments.Add(enrollment);
+
+            return new object(); // Unit class
         }
     }
 
