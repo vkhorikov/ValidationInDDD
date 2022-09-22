@@ -94,7 +94,7 @@ namespace Api
         {
             Student student = _studentRepository.GetById(id);
 
-            var resonse = new GetResonse
+            var response = new GetResponse
             {
                 Addresses = student.Addresses.Select(x =>
                     new AddressDto
@@ -113,7 +113,7 @@ namespace Api
                     Grade = x.Enrollment.Grade.ToString()
                 }).ToArray()
             };
-            return Ok(resonse);
+            return Ok(response);
         }
     }
 }
