@@ -47,7 +47,7 @@ namespace Api
         public string Grade { get; set; }
     }
 
-    public class GetResonse
+    public class GetResponse
     {
         public string Name { get; set; }
         public string Email { get; set; }
